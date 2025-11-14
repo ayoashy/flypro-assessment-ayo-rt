@@ -1,34 +1,3 @@
-# Travel Expense Management API
-
-A comprehensive backend API for managing travel expenses, built with Go, Gin, GORM, PostgreSQL, and Redis.
-
-## Features
-
-- User management with email validation
-- Expense tracking with multi-currency support
-- Expense report creation and submission
-- Currency conversion with Redis caching
-- Comprehensive input validation
-- Database migrations with Goose
-- RESTful API design
-- Structured logging
-- Error handling middleware
-
-## Tech Stack
-
-- **Language**: Go 1.25
-- **Framework**: Gin
-- **ORM**: GORM
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7
-- **Migrations**: Goose
-- **Validation**: go-playground/validator
-
-## Prerequisites
-
-- Go 1.25 or higher
-- Docker and Docker Compose
-- Make (optional, for convenience commands)
 
 ## Quick Start
 
