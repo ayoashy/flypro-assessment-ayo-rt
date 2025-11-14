@@ -2,15 +2,14 @@ package validators
 
 import (
 	"fmt"
-	"strings"
 	"github.com/go-playground/validator/v10"
+	"strings"
 )
 
 var ValidCurrencyCodes = map[string]bool{
 	"USD": true, "EUR": true, "GBP": true, "JPY": true, "AUD": true,
-	"CAD": true, "CHF": true, "CNY": true, "INR": true, "SGD": true,
-	"NZD": true, "MXN": true, "HKD": true, "NOK": true, "SEK": true,
-	"KRW": true, "TRY": true, "RUB": true, "ZAR": true, 	"BRL": true,
+	"CAD": true,
+	"NZD": true, "NGN": true,
 }
 
 func ValidateCurrency(fl validator.FieldLevel) bool {

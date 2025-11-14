@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"flypro-assessment-ayo/internal/utils"
+	"flypro-assessment-ayo-rt/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

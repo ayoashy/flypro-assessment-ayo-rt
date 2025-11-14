@@ -1,12 +1,12 @@
-package handlers
+package handler
 
 import (
 	"net/http"
 	"strconv"
 
 	"flypro-assessment-ayo-rt/internal/dto"
-	"flypro-assessment-ayo-rt/internal/utils"
 	"flypro-assessment-ayo-rt/internal/services"
+	"flypro-assessment-ayo-rt/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

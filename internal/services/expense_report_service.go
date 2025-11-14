@@ -24,11 +24,11 @@ type ExpenseReportService interface {
 }
 
 type expenseReportService struct {
-	reportRepo     repository.ExpenseReportRepository
-	expenseRepo    repository.ExpenseRepository
+	reportRepo      repository.ExpenseReportRepository
+	expenseRepo     repository.ExpenseRepository
 	currencyService CurrencyService
-	redisClient    *redis.Client
-	config         *config.Config
+	redisClient     *redis.Client
+	config          *config.Config
 }
 
 func NewExpenseReportService(

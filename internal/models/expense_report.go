@@ -23,7 +23,6 @@ func (ExpenseReport) TableName() string {
 	return "expense_reports"
 }
 
-// Valid statuses
 const (
 	ReportStatusDraft     = "draft"
 	ReportStatusSubmitted = "submitted"

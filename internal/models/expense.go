@@ -13,7 +13,7 @@ type Expense struct {
 	Currency    string         `json:"currency" gorm:"not null"`
 	Category    string         `json:"category" gorm:"not null;index"`
 	Description string         `json:"description"`
-	Receipt     string         `json:"receipt"` // File path/URL
+	Receipt     string         `json:"receipt"`
 	Status      string         `json:"status" gorm:"default:'pending';index"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
@@ -32,7 +32,7 @@ const (
 )
 
 const (
-	CategoryTravel        = "travel"
-	CategoryMeals         = "meals"
+	CategoryTravel         = "travel"
+	CategoryMeals          = "meals"
 	CategoryOfficeSupplies = "office supplies"
 )

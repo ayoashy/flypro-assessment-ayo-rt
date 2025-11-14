@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"strconv"
@@ -59,5 +59,3 @@ func handleValidationError(c *gin.Context, err error) {
 		utils.ErrorResponse(c, utils.NewBadRequestError(err.Error()))
 	}
 }
-
-
