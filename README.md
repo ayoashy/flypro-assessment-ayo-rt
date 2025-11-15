@@ -188,10 +188,6 @@ The application follows a layered architecture:
 4. **Model Layer**: Domain entities
 
 
-## Currency Conversion
-
-The API integrates with ExchangeRate-API for currency conversion. Exchange rates are cached in Redis with a 6-hour TTL to reduce API calls and improve performance.
-
 ## Error Handling
 
 The API returns consistent error responses:
@@ -210,64 +206,130 @@ The API returns consistent error responses:
 ```
 
 
-## Scaling Considerations
+### 1. How would you handle concurrent expense approvals?
 
-### Concurrent Expense Approvals
+**Strategy**: Implement optimistic locking using version fields and database transactions.
 
-To handle concurrent expense approvals, consider:
+```go
+// Add version field to Expense model
+type Expense struct {
+    // ... existing fields
+    Version int `gorm:"default:0"`
+}
 
-1. **Database Transactions**: optimistic locking with version fields
-2. **Distributed Locks**: Redis for distributed locking
-3. **Event Sourcing**: all state changes for audit and conflict resolution
-4. **Queue System**: Process approvals asynchronously with message queues
+// In service layer
+func (s *ExpenseService) ApproveExpense(ctx context.Context, id uint, version int) error {
+    return s.db.Transaction(func(tx *gorm.DB) error {
+        var expense Expense
+        if err := tx.Where("id = ? AND version = ?", id, version).
+            First(&expense).Error; err != nil {
+            return errors.New("expense was modified")
+        }
 
-### System Scaling
+        expense.Status = "approved"
+        expense.Version++
+        return tx.Save(&expense).Error
+    })
+}
+```
 
-1. **Database**: 
-   - Read replicas for read-heavy operations
-   - Connection pooling
-   - Query optimization with proper indexes
+**Alternative**: Use database-level locking:
 
-2. **Caching**:
-   - Redis cluster for high availability
-   - Cache warming strategies
-   - Cache invalidation patterns
+```sql
+SELECT * FROM expenses WHERE id = ? FOR UPDATE;
+```
 
-3. **Application**:
-   - Horizontal scaling with load balancers
-   - Stateless API design
-   - Graceful shutdown 
+### 2. What strategies would you use to scale this system?
 
-4. **Background Jobs**:
-   - Use message queues (RabbitMQ, Kafka) for async processing
-   - Worker pools for currency conversion
-   - Scheduled jobs for report generation
+**Horizontal Scaling**:
 
-### Data Consistency
+- Stateless API servers (multiple instances behind load balancer)
+- Read replicas for PostgreSQL
+- Redis cluster for distributed caching
+- Sharding by user_id for very large datasets
 
-1. **Transactions**: Use database transactions for multi-step operations
-2. **Saga Pattern**: For distributed transactions across services
-3. **Eventual Consistency**: Accept eventual consistency for non-critical paths
-4. **Idempotency**: Make operations idempotent with unique keys
+**Vertical Scaling**:
 
-### Monitoring and Alerting
+- Connection pooling (already implemented)
+- Database query optimization with indexes
+- Redis caching to reduce database load
 
-1. **Metrics**:
-   - Request rate and latency
-   - Error rates by endpoint
-   - Database connection pool usage
-   - Cache hit/miss ratios
-   - Currency API response times
+**Microservices Approach**:
 
-3. **Alerting**:
-   - High error rates
-   - Slow response times (>1s)
-   - Database connection failures
-   - Redis unavailability
-   - Currency API failures
+- Separate services for: User Management, Expense Management, Reporting, Currency Conversion
+- Event-driven architecture with message queue (Kafka/RabbitMQ)
+- API Gateway for routing
 
-4. **Health Checks**:
-   - Database connectivity
-   - Redis connectivity
-   - External API health
+**Caching Strategy**:
+
+- Multi-layer caching (L1: in-memory, L2: Redis, L3: Database)
+- Cache warming for frequently accessed data
+- Cache invalidation strategies
+
+**Background Jobs**:
+
+- Async processing for currency conversion
+- Background report generation
+- Email notifications
+
+### 3. How would you ensure data consistency across services?
+
+**ACID Transactions**:
+
+- Use database transactions for critical operations
+- Implement compensating transactions for distributed scenarios
+
+**Event Sourcing**:
+
+- Store all changes as events
+- Rebuild state from events
+- Enable audit trail and replay
+
+**Saga Pattern**:
+
+- For distributed transactions across services
+- Compensating actions for rollback
+
+**Idempotency**:
+
+- Idempotency keys for all mutations
+- Idempotent API endpoints
+
+**Eventual Consistency**:
+
+- Accept eventual consistency for non-critical paths
+- Use eventual consistency with conflict resolution for reporting
+
+### 4. What monitoring and alerting would you implement?
+
+**Metrics**:
+
+- Prometheus metrics for:
+  - Request rate (requests/sec)
+  - Error rate (4xx, 5xx errors)
+  - Response time (p50, p95, p99)
+  - Database connection pool usage
+  - Redis cache hit/miss ratio
+  - Currency API call success rate
+
+**Logging**:
+
+- Structured logging with correlation IDs
+- Log levels: DEBUG, INFO, WARN, ERROR
+- Centralized logging (ELK Stack or similar)
+
+**Health Checks**:
+
+- `/health` endpoint
+- Database connectivity check
+- Redis connectivity check
+- External API (currency) health check
+
+**Alerting**:
+- Database connection pool exhaustion
+- Redis unavailability
+- Currency API failures
+
+**Tracing**:
+- Performance bottleneck identification
 
